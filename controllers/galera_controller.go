@@ -86,12 +86,12 @@ func execInPod(r *GaleraReconciler, namespace string, pod string, container stri
 
 	if err != nil {
 		return err
-	} else {
-		return fun(&stdout, &stderr)
 	}
+
+	return fun(&stdout, &stderr)
 }
 
-func FindBestCandidate(status *databasev1beta1.GaleraStatus) string {
+func findBestCandidate(status *databasev1beta1.GaleraStatus) string {
 	sortednodes := []string{}
 	for node := range status.Attributes {
 		sortednodes = append(sortednodes, node)
@@ -111,7 +111,7 @@ func FindBestCandidate(status *databasev1beta1.GaleraStatus) string {
 	return bestnode //"galera-0"
 }
 
-func BuildGcommURI(galera *databasev1beta1.Galera) string {
+func buildGcommURI(galera *databasev1beta1.Galera) string {
 	size := int(galera.Spec.Size)
 	basename := galera.Name + "-galera"
 	res := []string{}
@@ -409,20 +409,20 @@ func (r *GaleraReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 					return ctrl.Result{Requeue: true}, nil
 					// // Requeue in case we can handle other pods (TODO: be smarter than 3s)
 					// return ctrl.Result{RequeueAfter: time.Duration(3) * time.Second}, nil
-				} else {
-					// TODO check if another pod can be probed before bailing out
-					// This pod hasn't started fully, we can't introspect the galera database yet
-					// so we requeue the event for processing later
-					return ctrl.Result{RequeueAfter: time.Duration(3) * time.Second}, nil
 				}
+
+				// TODO check if another pod can be probed before bailing out
+				// This pod hasn't started fully, we can't introspect the galera database yet
+				// so we requeue the event for processing later
+				return ctrl.Result{RequeueAfter: time.Duration(3) * time.Second}, nil
 			}
 		}
 	}
 
 	// log.Info("db", "status", galera.Status)
-	bootstrapped := galera.Status.Bootstrapped == true
+	bootstrapped := galera.Status.Bootstrapped
 	if !bootstrapped && len(podNames) == len(galera.Status.Attributes) {
-		node := FindBestCandidate(&galera.Status)
+		node := findBestCandidate(&galera.Status)
 		uri := "gcomm://"
 		log.Info("Pushing gcomm URI to bootstrap", "pod", node)
 
@@ -458,7 +458,7 @@ func (r *GaleraReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 				continue
 			}
 
-			uri := BuildGcommURI(galera)
+			uri := buildGcommURI(galera)
 			log.Info("Pushing gcomm URI to joiner", "pod", node)
 
 			rc := execInPod(r, galera.Namespace, node, "galera",
@@ -728,7 +728,10 @@ func (r *GaleraReconciler) statefulSetForGalera(m *databasev1beta1.Galera) *apps
 		},
 	}
 	// Set Galera instance as the owner and controller
-	ctrl.SetControllerReference(m, dep, r.Scheme)
+	err := ctrl.SetControllerReference(m, dep, r.Scheme)
+	if err != nil {
+		return nil
+	}
 	return dep
 }
 
@@ -746,7 +749,10 @@ func (r *GaleraReconciler) mariadbShimForGalera(m *databasev1beta1.Galera) *data
 			ContainerImage: m.Spec.ContainerImage,
 		},
 	}
-	ctrl.SetControllerReference(m, mariadb, r.Scheme)
+	err := ctrl.SetControllerReference(m, mariadb, r.Scheme)
+	if err != nil {
+		return nil
+	}
 	return mariadb
 }
 
@@ -770,7 +776,10 @@ func (r *GaleraReconciler) headlessServiceForGalera(m *databasev1beta1.Galera) *
 		},
 	}
 	// Set Galera instance as the owner and controller
-	ctrl.SetControllerReference(m, dep, r.Scheme)
+	err := ctrl.SetControllerReference(m, dep, r.Scheme)
+	if err != nil {
+		return nil
+	}
 	return dep
 }
 
@@ -796,7 +805,10 @@ func (r *GaleraReconciler) serviceForGalera(m *databasev1beta1.Galera) *corev1.S
 		},
 	}
 	// Set Galera instance as the owner and controller
-	ctrl.SetControllerReference(m, dep, r.Scheme)
+	err := ctrl.SetControllerReference(m, dep, r.Scheme)
+	if err != nil {
+		return nil
+	}
 	return dep
 }
 

@@ -121,16 +121,16 @@ func (r *MariaDBDatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		}
 
 	} else {
-		r.Log.Info(fmt.Sprintf("1 check finalizer"))
+		// r.Log.Info(fmt.Sprintf("1 check finalizer"))
 		// 1. check if finalizer is there
 		// Reconcile if finalizer got already removed
 		if !controllerutil.ContainsFinalizer(instance, finalizerName) {
 			return ctrl.Result{}, nil
 		}
 
-		r.Log.Info(fmt.Sprintf("2 delete db"))
+		// r.Log.Info(fmt.Sprintf("2 delete db"))
 		// 2. delete the database
-		r.Log.Info(fmt.Sprintf("CR %s delete, running DB delete job", instance.Name))
+		// r.Log.Info(fmt.Sprintf("CR %s delete, running DB delete job", instance.Name))
 		jobDef, err := mariadb.DeleteDbDatabaseJob(instance, db.Name, db.Spec.Secret, db.Spec.ContainerImage)
 		if err != nil {
 			return ctrl.Result{}, err
@@ -165,7 +165,7 @@ func (r *MariaDBDatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			r.Log.Info(fmt.Sprintf("Job %s hash added - %s", jobDef.Name, instance.Status.Hash[databasev1beta1.DbDeleteHash]))
 		}
 
-		r.Log.Info(fmt.Sprintf("3 remove finalizer"))
+		// r.Log.Info(fmt.Sprintf("3 remove finalizer"))
 		// 3. as last step remove the finalizer on the operator CR to finish delete
 		controllerutil.RemoveFinalizer(instance, finalizerName)
 		err = r.Client.Update(ctx, instance)

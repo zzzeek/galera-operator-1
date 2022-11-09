@@ -35,6 +35,7 @@ type GaleraSpec struct {
 	Size int32 `json:"size"`
 }
 
+// GaleraAttributes holds startup information for a Galera host
 type GaleraAttributes struct {
 	// Last recorded replication sequence number in the DB
 	Seqno string `json:"seqno"`

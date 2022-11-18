@@ -30,7 +30,10 @@ RUN cp -r templates ${DEST_ROOT}/templates
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM $OPERATOR_BASE_IMAGE
+#FROM $OPERATOR_BASE_IMAGE
+
+# MIKE: use alpine:latest so that we have shell commands
+FROM alpine:latest
 
 ARG DEST_ROOT=/dest-root
 # NONROOT default id https://github.com/GoogleContainerTools/distroless/blob/main/base/base.bzl#L8=
@@ -71,6 +74,7 @@ COPY --from=builder ${DEST_ROOT}/templates ${OPERATOR_TEMPLATES}
 
 USER $USER_ID
 
-ENV PATH="/:${PATH}"
+# TODO: not working, still cant use terminal in GUI, says sh not in path
+ENV PATH="/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}"
 
 ENTRYPOINT ["/manager"]

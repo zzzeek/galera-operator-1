@@ -122,7 +122,7 @@ docker-build: test ## Build docker image with the manager.
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
-	podman push ${IMG}
+	podman push  --tls-verify=false ${IMG}
 
 ##@ Deployment
 

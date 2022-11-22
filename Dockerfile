@@ -1,5 +1,5 @@
 ARG GOLANG_BUILDER=golang:1.18
-ARG OPERATOR_BASE_IMAGE=gcr.io/distroless/static:nonroot
+ARG OPERATOR_BASE_IMAGE=gcr.io/distroless/static:debug-nonroot
 
 # Build the manager binary
 FROM $GOLANG_BUILDER AS builder
@@ -30,10 +30,7 @@ RUN cp -r templates ${DEST_ROOT}/templates
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-#FROM $OPERATOR_BASE_IMAGE
-
-# MIKE: use alpine:latest so that we have shell commands
-FROM alpine:latest
+FROM $OPERATOR_BASE_IMAGE
 
 ARG DEST_ROOT=/dest-root
 # NONROOT default id https://github.com/GoogleContainerTools/distroless/blob/main/base/base.bzl#L8=

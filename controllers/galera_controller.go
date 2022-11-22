@@ -245,7 +245,7 @@ func (r *GaleraReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 	// Check if the main mysql service already exists, if not create a new one
 	svcfound := &corev1.Service{}
-	nsname := types.NamespacedName{Namespace: req.NamespacedName.Namespace, Name: resName}
+	nsname := types.NamespacedName{Namespace: req.NamespacedName.Namespace, Name: galera.Name}
 	err = r.Get(ctx, nsname, svcfound)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new headless service

@@ -1,7 +1,7 @@
 apiVersion: mariadb.openstack.org/v1beta1
 kind: Galera
 metadata:
-  name: mike2
+  name: mike2s-galera-service
 spec:
   secret: galera-secrets
   storageClass: local-storage

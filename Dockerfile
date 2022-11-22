@@ -71,7 +71,6 @@ COPY --from=builder ${DEST_ROOT}/templates ${OPERATOR_TEMPLATES}
 
 USER $USER_ID
 
-# TODO: not working, still cant use terminal in GUI, says sh not in path
 ENV PATH="/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}"
 
 ENTRYPOINT ["/manager"]
